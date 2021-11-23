@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <LogIn msg ="这里是父组件传入的字符串"></LogIn>
+    <LogIn></LogIn>
   </div>
 </template>
 
 <script>
-import LogIn from "@/pages/LogIn";
+import LogIn from "@/pages/LogIn.vue";
 
 export default {
   name: 'App',

@@ -1,41 +1,56 @@
 <template>
-    <div>
-        {{msg}}
-        <NormalText name="这里是name">
-        </NormalText>
-        <el-button round>
-            圆角按钮
-        </el-button>
+    <div class="main">
+        <!--form提交表单-->
+        <el-form ref="form" :model="form" label-width="70px">
 
-        <el-input placeholder ="请输入内容">
-            <template slot="prepend">Http://</template>
-        </el-input>
+            <el-form-item label="用户名">
+                <el-input v-model="form.userName"  size="=large" placeholder="用户名/邮箱/手机号"></el-input>
+            </el-form-item>
 
-        <el-checkbox>
-            备选框1
-        </el-checkbox>
+            <el-form-item label="密码">
+                <el-input v-model="form.userPassword"  size="=large" placeholder="请输入密码" show-password></el-input>
+            </el-form-item>
 
-        <el-checkbox>
-            备选框2
-        </el-checkbox>
+            <el-form-item>
+                <el-button type="primary" round size="medium"  @click="FormSubmit">提交</el-button>
+                <el-link type="primary">立即注册</el-link>
+            </el-form-item>
+
+        </el-form>
     </div>
 </template>
 
 <script>
-    import  NormalText from '@/components/text-component/Normal-text'
     export default {
-        components: {NormalText},
 
-        name: "LogIn",
-        props:{
-            msg:{
-                type:String,
-                default:''
+        data(){
+            return{
+                form:{
+                    userName:'',
+                    userPassword:'',
+                }
+            }
+        },
+
+        mounted(){},
+        methods:{
+          async FormSubmit() {
+
+               let result = await this.ServiceName.sendPost('T0002','Q01','');
+                if (result.success){
+                            alert(result.body[0])
+                }else {
+                    this.$message.error("通讯返回失败,具体错误码等需要自己处理")
+                }
             }
         }
+
     }
 </script>
 
 <style scoped>
-
+.main{
+    width: 30%;
+    margin-left: 30%;
+}
 </style>
