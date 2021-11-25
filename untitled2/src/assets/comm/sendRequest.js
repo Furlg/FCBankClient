@@ -15,9 +15,10 @@ export default {
        await axios({
             method:'post',
             url:BaseUrl+serviceCode+'/'+scene,
-            data:data,
+            data:JSON.stringify(data),
             headers:{
                 'ServiceCode':serviceCode,
+                'Content-Type' : 'application/json;charset=utf-8',
                 'SceneCode':scene,
                 'ChannelCode':ChannelCode
             }})
@@ -35,7 +36,7 @@ export default {
 
             })
             .catch(function (error) {
-                console.log(error);
+                this.$message.error("通讯返回失败,具体错误码等需要自己处理"+error)
             });
 
             return Postresponse;

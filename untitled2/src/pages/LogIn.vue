@@ -36,7 +36,11 @@
         methods:{
           async FormSubmit() {
 
-               let result = await this.ServiceName.sendPost('T0002','Q01','');
+              let submitData = new Object();
+                  submitData.managerId = this.form.userName;
+                  submitData.password  = this.form.userPassword;
+
+               let result = await this.ServiceName.sendPost('T001','Q01',submitData);
                 if (result.success){
                             alert(result.body[0])
                 }else {
