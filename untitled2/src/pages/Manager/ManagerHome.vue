@@ -4,8 +4,8 @@
             <!--容器-->
         <el-container class="el-container">
 
-            <el-aside >
 
+            <el-aside >
                 <el-menu
                         class="el-menu"
                         text-color="#fff"
@@ -17,18 +17,11 @@
                 >
 
                     <el-submenu index="1">
-                        <template slot="title" >用户中心</template>
-                        <el-menu-item index="1-1">
-                            <i class="el-icon-user-solid">{{managerInfo.managerName}}</i>
-                        </el-menu-item>
-
-                        <el-menu-item index="1-2">
-                            <i class="el-icon-phone-outline">{{managerInfo.phoneNumber}}</i>
-                        </el-menu-item>
-
-                        <el-menu-item index="1-3">
-                            <i class="el-icon-message">{{managerInfo.email}}</i>
-                        </el-menu-item>
+                        <template slot="title" >管理员中心</template>
+                        <el-menu-item index="1-1">管理员新增 </el-menu-item>
+                        <el-menu-item index="1-2">管理员修改</el-menu-item>
+                        <el-menu-item index="1-3">管理员删除</el-menu-item>
+                        <el-menu-item index="1-4">管理员查询</el-menu-item>
                     </el-submenu>
 
                     <!--会员管理-->
@@ -45,6 +38,81 @@
             </el-aside>
 
             <el-main>
+                <el-header>
+                    <i class="el-icon-user-solid">{{managerInfo.managerName}}</i>
+                    <i class="el-icon-phone-outline">{{managerInfo.phoneNumber}}</i>
+                    <i class="el-icon-message">{{managerInfo.email}}</i>
+                </el-header>
+
+                <!--管理员的新增/修改/删除/查询-->
+
+                <div class="Manager_Insert" v-if = "main_Hidden.key_path === '1,1-1'">
+                    新增时
+                </div>
+
+                <div class="Manager_Delete" v-if = "main_Hidden.key_path === '1,1-2'">
+                    修改
+                </div>
+
+                <div class="Manager_Update" v-if = "main_Hidden.key_path === '1,1-3'">
+                    删除
+                </div>
+
+                <!--管理员的查询-->
+                <div class="Manager_Update" v-if = "main_Hidden.key_path === '1,1-4'">
+
+                    <!--查询条件-->
+                    <div class="select-cond">
+                        <el-row type="flex" justify="start" :gutter="30">
+                            <el-col :span="8">
+                                <el-input size="medium" placeholder="请输入用户名" v-model="Select_Manager.managerName">
+                                    <template slot="prepend">用户名:</template>
+                                </el-input>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-input size="medium" placeholder="请输入11位有效手机号码" v-model="Select_Manager.phoneNumber">
+                                    <template slot="prepend">手机号:</template>
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row type="flex" justify="start" :gutter="30">
+                            <el-col :span="8">
+                                <el-input size="medium" placeholder="请输入有效邮箱" v-model="Select_Manager.email">
+                                    <template slot="prepend">邮箱:</template>
+                                </el-input>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-select v-model="Select_Manager.active" placeholder="请选择">
+                                        <el-option
+                                        v-for ="item in Select_Manager.activeEnum"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                          <span style="float: left">{{item.label}}</span>
+                                          <span style="float:right;color: #8492a6; font-size: 13px">{{item.value}}</span>
+                                        </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+
+                        <el-row type="flex" justify="start" :gutter="30">
+                                <el-button round @click="Select_ManagerByNamePhoneEmail">查询</el-button>
+                        </el-row>
+
+                        <!--管理员查询时表格-->
+                        <el-table :data="Manager.tableData" width="100%" row-class-name="tableRowClassName" border>
+                            <el-table-column prop="ManagerId" label="管理员编号"/>
+                            <el-table-column prop="ManagerName" label="管理员姓名"/>
+                            <el-table-column prop="ManagerPhoneNumber" label="手机号"/>
+                            <el-table-column prop="ManagerRole" label="角色"/>
+                            <el-table-column prop="ManagerActive" label="有效"/>
+                            <el-table-column prop="ManagerEmail" label="邮箱"/>
+                        </el-table>
+                        <el-pagination background layout="prev ,pager ,next" :total="1000"></el-pagination>
+                    </div>
+                </div>
+
+                <!--会员的新增/修改/删除/查询-->
                 <div class="Customer_query" v-if = "main_Hidden.key_path === '2,2-1'">
                     <el-input prefix-icon="el-icon-search" placeholder="请输入用户名称" v-model="Customer.SearchContent" @blur="selectCustomerByName()"/>
                     <el-divider></el-divider>
@@ -53,8 +121,8 @@
                         <el-table-column prop="customerName" label="客户名称"  width="100px"/>
                         <el-table-column prop="customerPhone" label="手机号"  width="100px"/>
                         <el-table-column prop="customerEmail" label="邮箱"  width="150px"/>
-
                     </el-table>
+                        <el-pagination background layout="prev ,pager ,next" :total="1000"></el-pagination>
                 </div>
 
                 <div class="Customer_Insert" v-if = "main_Hidden.key_path === '2,2-2'">
@@ -116,10 +184,41 @@
                         {customerId:14001214,customerName:'啥安保',customerPhone:'13639572915',customerEmail:'14525@163.com'}
                     ],
                 },
+
+                //管理员信息
+                Manager:{
+                    SearchContent:'',
+                    tableData:[],
+                },
+
                 //控制select,insert,update,delete时是否可以
                 main_Hidden:{
                     key_path:''
                 },
+
+                //查询管理员Select数据字典
+                Select_Manager:{
+                    //管理员姓名
+                    managerName:'',
+
+                    //手机号
+                    phoneNumber:'',
+
+                    //邮箱
+                    email:'',
+
+                    //管理员角色
+                    managerRole:'',
+
+                    //是否有效
+                    active:'',
+
+                    //是否有效枚举
+                    activeEnum:[
+                        {value:'有效',label:'0'},
+                        {value:'无效',label:'1'}
+                    ]
+                }
             }
         },
 
@@ -144,7 +243,7 @@
             //打开指定的菜单
             menuOpenPath(key,keyPath){
 
-                let subMenu_Item    = ['2,2-1','2,2-2','2,2-3','2,2-4'];
+                let subMenu_Item    = ['1,1-1','1,1-2','1,1-3','1,1-4','2,2-1','2,2-2','2,2-3','2,2-4'];
                 let i =0;
                 for (i;i<subMenu_Item.length;i++){
                     if (subMenu_Item[i] == keyPath){
@@ -158,6 +257,33 @@
             async selectCustomerByName(){
 
 
+            },
+
+            //根据管理员名称|手机号|邮箱|是否有效标志查询管理员信息
+            async Select_ManagerByNamePhoneEmail(){
+                let submitData = new Object();
+                    submitData.managerName   = this.Select_Manager.managerName;
+                    submitData.phoneNumber   = this.Select_Manager.phoneNumber;
+                    submitData.email         = this.Select_Manager.email;
+                    submitData.active        = this.Select_Manager.active;
+                    submitData.pageCount     =1;
+
+                    let result = await this.ServiceName.sendPost("T001","Q04",submitData);
+                    if (result.success){
+                        this.Manager.tableData =[];
+                        let i=0;
+                        for (i = 0;i<result.body.ManagerInfoList.length;i++){
+                            let object = new Object();
+                                object.ManagerId            = result.body.ManagerInfoList[i].managerId;
+                                object.ManagerName          = result.body.ManagerInfoList[i].managerName;
+                                object.ManagerPhoneNumber   = result.body.ManagerInfoList[i].phoneNumber;
+                                object.ManagerRole          = result.body.ManagerInfoList[i].managerRole;
+                                object.ManagerActive        = result.body.ManagerInfoList[i].active;
+                                object.ManagerEmail         = result.body.ManagerInfoList[i].email;
+                                this.Manager.tableData.push(object);
+                        }
+
+                    }
             }
         }
     }
