@@ -47,7 +47,52 @@
                 <!--管理员的新增/修改/删除/查询-->
 
                 <div class="Manager_Insert" v-if = "main_Hidden.key_path === '1,1-1'">
-                    新增时
+                    <el-row>
+
+                        <!--用户名-->
+                        <el-col :span="7">
+                            <el-input
+                                    placeholder="请输入用户名称"
+                                    v-model="Manager_Insert.ManagerName">
+                                <i slot="prefix" class="el-input_icon el-icon-user"></i>
+                            </el-input>
+
+                            <!--手机号-->
+                            <el-input
+                                    placeholder="请输入11位有效手机号码"
+                                    v-model="Manager_Insert.ManagerPhone">
+                                <i slot="prefix" class="el-input_icon el-icon-phone"></i>
+                            </el-input>
+                            <!--邮箱-->
+                            <el-input
+                                    placeholder="请输入有效邮箱地址"
+                                    v-model="Manager_Insert.ManagerEmail">
+                                <i slot="prefix" class="el-input_icon el-icon-message"></i>
+                            </el-input>
+
+                            <!--角色-->
+                            <el-select v-model="Manager_Insert.ManagerRole" clearable placeholder="请选择管理员角色">
+                                <el-option v-for="item in Manager_Insert.ManagerRoleArray"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value" ></el-option>
+                            </el-select>
+
+                            <!--是否有效-->
+                            <el-select v-model="Manager_Insert.ManagerActive" clearable placeholder="是否有效" >
+                                <el-option v-for="item in Manager_Insert.ManagerActiveArray"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value"></el-option>
+                            </el-select>
+
+                            <!--密码-->
+                            <el-input v-model="Manager_Insert.ManagerPassword" placeholder="请输入密码" show-password/>
+                            <el-button round @click="Manager_Insert_Submit">提交</el-button>
+                        </el-col>
+                    </el-row>
+
+
                 </div>
 
                 <div class="Manager_Delete" v-if = "main_Hidden.key_path === '1,1-2'">
@@ -108,7 +153,10 @@
                             <el-table-column prop="ManagerActive" label="有效"/>
                             <el-table-column prop="ManagerEmail" label="邮箱"/>
                         </el-table>
-                        <el-pagination background layout="prev ,pager ,next" :total="1000"></el-pagination>
+                        <el-pagination background layout="prev ,pager ,next"
+                                       :total="ManagerPagination.ManagerTotal"
+                                       :page-size="ManagerPagination.ManagerSize"
+                                       @current-change="handleCurrentChange"></el-pagination>
                     </div>
                 </div>
 
@@ -122,11 +170,15 @@
                         <el-table-column prop="customerPhone" label="手机号"  width="100px"/>
                         <el-table-column prop="customerEmail" label="邮箱"  width="150px"/>
                     </el-table>
-                        <el-pagination background layout="prev ,pager ,next" :total="1000"></el-pagination>
+                        <el-pagination background layout="prev ,pager ,next"></el-pagination>
                 </div>
 
                 <div class="Customer_Insert" v-if = "main_Hidden.key_path === '2,2-2'">
-                    新增时
+                        <el-input
+                            placeholder="请输入用户名称"
+                            v-model="w">
+                            <i slot="prefix" class="el-input_icon el-icon-message"></i>
+                        </el-input>
                 </div>
 
                 <div class="Customer_Delete" v-if = "main_Hidden.key_path === '2,2-3'">
@@ -218,6 +270,30 @@
                         {value:'有效',label:'0'},
                         {value:'无效',label:'1'}
                     ]
+                },
+
+                //管理员新增时
+                Manager_Insert:{
+                    ManagerName:'',
+                    ManagerPhone:'',
+                    ManagerEmail:'',
+                    ManagerRole:'',
+                    ManagerRoleArray:[
+                        {value:'0',label:'超级管理员'},
+                        {value:'1',label:'城市管理员'},
+                        {value:'2',label:'普通管理员你'}
+                    ],
+                    ManagerActive:'',
+                    ManagerActiveArray:[{value:'0',label:'有效'},{value:'1',label:'无效'}],
+                    ManagerPassword:''
+                },
+
+                /**关于翻页的信息**/
+                ManagerPagination:{
+                    ManagerTotal:0,//总条数
+                    ManagerCurrentPage:1,//当前页
+                    ManagerSize:10, //每页展示的条数
+
                 }
             }
         },
@@ -266,11 +342,12 @@
                     submitData.phoneNumber   = this.Select_Manager.phoneNumber;
                     submitData.email         = this.Select_Manager.email;
                     submitData.active        = this.Select_Manager.active;
-                    submitData.pageCount     =1;
+                    submitData.pageCount     =0;
 
                     let result = await this.ServiceName.sendPost("T001","Q04",submitData);
                     if (result.success){
                         this.Manager.tableData =[];
+                        this.ManagerPagination.ManagerTotal = result.body.PageTotal;
                         let i=0;
                         for (i = 0;i<result.body.ManagerInfoList.length;i++){
                             let object = new Object();
@@ -283,6 +360,27 @@
                                 this.Manager.tableData.push(object);
                         }
 
+                    }
+            },
+
+            //根据管理员名称|手机号|邮箱|是否有效标志查询管理员信息
+            async handleCurrentChange(val){
+                alert("当前页:"+val)
+            },
+
+            //增加管理员
+           async Manager_Insert_Submit(){
+               let submitData = new Object();
+               submitData.managerName   = this.Manager_Insert.ManagerName;
+               submitData.phoneNumber   = this.Manager_Insert.ManagerPhone;
+               submitData.email         = this.Manager_Insert.ManagerEmail;
+               submitData.active        = this.Manager_Insert.ManagerActive;
+               submitData.managerRole   = this.Manager_Insert.ManagerRole;
+               submitData.managerPassword      = this.Manager_Insert.ManagerPassword;
+
+               let result = await  this.ServiceName.sendPost("T001","I01",submitData);
+                    if(result.success){
+                        this.$alert('添加成功','')
                     }
             }
         }
